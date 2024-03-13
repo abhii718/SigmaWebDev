@@ -1,5 +1,6 @@
-const { error } = require("console");
+
 const fs = require("fs");
+// import fs from 'fs/promises';
 console.log(fs);
 
 console.log("starting");
@@ -14,6 +15,6 @@ fs.writeFile("abhi2.txt", "abhii is a good boy", () => {
   });
 });
 
-fs.appendFile("abhi2.txt", "this is being append in abhi2.txt", (e, d) => {});
+fs.appendFile("abhi2.txt", "this is being append in abhi2.txt hello bhai", (e, d) => {});
 
 console.log("ending");
