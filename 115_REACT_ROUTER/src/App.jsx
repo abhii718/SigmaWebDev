@@ -12,7 +12,7 @@ function App() {
     [
       {
         path: "/",
-        element: <> <Navbar />hii<Home /></>
+        element: <> <Navbar /><Home /></>
       },
       {
         path: "/login",
