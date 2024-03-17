@@ -1,0 +1,15 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial
+}
+
+.card{
+  border: 2px solid black;
+  max-width: 25vw;
+
+}
+.container{
+
+  display: flex;
+  gap: 34px;
+  flex-wrap: wrap;
+}
