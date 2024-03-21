@@ -4,23 +4,33 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { v4 as uuidv4 } from 'uuid';
 
+
 const Manager = () => {
-    const ref = useRef();
     const passwordRef = useRef();
     const [form, setform] = useState({ site: '', password: '', username: '' });
     const [passwordArray, setpasswordArray] = useState([]);
 
+
+    const getPassword = async () => {
+
+        let req = await fetch("http://localhost:3000/")
+        let passwords = await req.json("password");
+        setpasswordArray(passwords);
+        console.log(passwords)
+    }
+
     useEffect(() => {
-        let password = localStorage.getItem("password");
-        let passwordArrauy;
-        if (password) {
-            setpasswordArray(JSON.parse(password));
-        }
+        getPassword()
     }, []);
 
     const copyText = (text) => {
-        alert("You clicked on copyText : " + text);
+        // alert("You clicked on copyText : " + text);
         navigator.clipboard.writeText(text);
+        toast('🦄 Copied!', {
+            position: "top-right",
+            autoClose: 1000,
+            theme: "dark",
+        });
     };
 
     const showPassword = () => {
@@ -31,11 +41,11 @@ const Manager = () => {
         }
     };
 
-    const savePassword = () => {
+    const savePassword = async () => {
         if (form.site.length > 9 && form.username.length > 4 && form.password.length > 3) {
             const newPassword = { ...form, id: uuidv4() };
             setpasswordArray([...passwordArray, newPassword]);
-            localStorage.setItem("password", JSON.stringify([...passwordArray, newPassword]));
+            let res = await fetch("http://localhost:3000/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, id: uuidv4() }) })
             setform({ site: '', password: '', username: '' });
 
             toast('🦄 Password Saved!', {
@@ -53,19 +63,26 @@ const Manager = () => {
         }
     };
 
-    const deletePassword = (id) => {
+    const deletePassword = async (id) => {
         let c = confirm("Do you really want to delete this password??");
         if (c) {
             const updatedPasswords = passwordArray.filter(item => item.id !== id);
             setpasswordArray(updatedPasswords);
-            localStorage.setItem("password", JSON.stringify(updatedPasswords));
+            let res = await fetch("http://localhost:3000/", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) })
+            toast('🦄 Deleted Succesfully!', {
+                position: "top-right",
+                autoClose: 1000,
+                theme: "dark",
+            });
         }
     };
 
-    const editPassword = (id) => {
+    const editPassword = async(id) => {
         const updatedPasswords = passwordArray.filter(item => item.id !== id);
         setform(passwordArray.filter(i => i.id === id)[0]);
         setpasswordArray(updatedPasswords);
+        let res = await fetch("http://localhost:3000/", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) })
+        
     };
 
     const handleChange = (e) => {
@@ -85,8 +102,8 @@ const Manager = () => {
                 transition="Bounce"
             />
             <ToastContainer />
+
             <div className="absolute top-0 -z-10 h-full w-full bg-white">
-           
                 <div className="absolute bottom-auto left-auto right-0 top-0 h-[500px] w-[500px] -translate-x-[30%] translate-y-[20%] rounded-full bg-green-400 opacity-50 blur-[70px]"></div>
             </div>
             <div className="container bg-slate-200 md:mycontainer p-2 md:p-0 min-h-[87.7vh]">
@@ -140,7 +157,7 @@ const Manager = () => {
                     >
                         Add Password
                     </button>
-                </div>     
+                </div>
                 <div className='passwords'>
                     <h2 className='font-bold text-2xl py-4 '>Your password</h2>
                     {passwordArray.length === 0 && <div>No password to show</div>}
@@ -167,13 +184,13 @@ const Manager = () => {
                                                 <i className="fas fa-copy" onClick={() => { copyText(item.username) }}></i>
                                             </td>
                                             <td className='text-center py-5 w-32'>
-                                                <a href={item.site} style={{ marginRight: '5px' }}>{item.password}</a>
+                                                <a href={item.site} style={{ marginRight: '5px' }}>{"*".repeat(item.password.length)}</a>
                                                 <i className="fas fa-copy" onClick={() => { copyText(item.password) }}></i>
                                             </td>
                                             <td className='text-center '>
-                                                <i class="fa-solid fa-pen-to-square " style={{ marginRight: '10px', marginLeft: '11px' }} onClick={() => { editPassword(item.id) }}
+                                                <i className="fa-solid fa-pen-to-square " style={{ marginRight: '10px', marginLeft: '11px' }} onClick={() => { editPassword(item.id) }}
                                                 ></i>
-                                                <i class="fa-solid fa-delete-left" onClick={() => { deletePassword(item.id) }} ></i>
+                                                <i className="fa-solid fa-delete-left" onClick={() => { deletePassword(item.id) }} ></i>
                                             </td>
                                         </tr>
                                     );
@@ -186,6 +203,5 @@ const Manager = () => {
         </>
     );
 }
-
 export default Manager;
 
