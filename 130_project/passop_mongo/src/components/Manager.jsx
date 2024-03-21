@@ -5,27 +5,32 @@ import 'react-toastify/dist/ReactToastify.css';
 import { v4 as uuidv4 } from 'uuid';
 
 
+
 const Manager = () => {
+    // useRef hook to reference the password input element
     const passwordRef = useRef();
+    // useState hook to manage form state
     const [form, setform] = useState({ site: '', password: '', username: '' });
+    // useState hook to manage the array of passwords
     const [passwordArray, setpasswordArray] = useState([]);
 
-
+    // Function to fetch passwords from the server
     const getPassword = async () => {
-
         let req = await fetch("http://localhost:3000/")
         let passwords = await req.json("password");
         setpasswordArray(passwords);
         console.log(passwords)
     }
 
+    // useEffect hook to fetch passwords when the component mounts
     useEffect(() => {
         getPassword()
     }, []);
 
+    // Function to copy text to the clipboard
     const copyText = (text) => {
-        // alert("You clicked on copyText : " + text);
         navigator.clipboard.writeText(text);
+        // Display toast notification after copying text
         toast('🦄 Copied!', {
             position: "top-right",
             autoClose: 1000,
@@ -33,6 +38,7 @@ const Manager = () => {
         });
     };
 
+    // Function to toggle password visibility
     const showPassword = () => {
         if (passwordRef.current.type === 'password') {
             passwordRef.current.type = 'text';
@@ -41,13 +47,16 @@ const Manager = () => {
         }
     };
 
+    // Function to save a new password
     const savePassword = async () => {
         if (form.site.length > 9 && form.username.length > 4 && form.password.length > 3) {
             const newPassword = { ...form, id: uuidv4() };
             setpasswordArray([...passwordArray, newPassword]);
+            // Send POST request to server to save the new password
             let res = await fetch("http://localhost:3000/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, id: uuidv4() }) })
             setform({ site: '', password: '', username: '' });
 
+            // Display success toast notification after saving password
             toast('🦄 Password Saved!', {
                 position: "top-right",
                 autoClose: 1000,
@@ -55,6 +64,7 @@ const Manager = () => {
             });
         }
         else {
+            // Display error toast notification if form validation fails
             toast('🦄 Password Not Saved!', {
                 position: "top-right",
                 autoClose: 1000,
@@ -63,13 +73,16 @@ const Manager = () => {
         }
     };
 
+    // Function to delete a password
     const deletePassword = async (id) => {
         let c = confirm("Do you really want to delete this password??");
         if (c) {
             const updatedPasswords = passwordArray.filter(item => item.id !== id);
             setpasswordArray(updatedPasswords);
+            // Send DELETE request to server to delete the password
             let res = await fetch("http://localhost:3000/", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) })
-            toast('🦄 Deleted Succesfully!', {
+            // Display success toast notification after deleting password
+            toast('🦄 Deleted Successfully!', {
                 position: "top-right",
                 autoClose: 1000,
                 theme: "dark",
@@ -77,12 +90,14 @@ const Manager = () => {
         }
     };
 
-    const editPassword = async(id) => {
+    // Function to edit a password
+    const editPassword = async (id) => {
         const updatedPasswords = passwordArray.filter(item => item.id !== id);
         setform(passwordArray.filter(i => i.id === id)[0]);
         setpasswordArray(updatedPasswords);
+        // Send DELETE request to server to delete the password
         let res = await fetch("http://localhost:3000/", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) })
-        
+
     };
 
     const handleChange = (e) => {
